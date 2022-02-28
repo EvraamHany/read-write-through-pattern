@@ -23,13 +23,13 @@ public class InboundMessageRepository implements CacheRepository<message, String
     @Autowired(required = false)
     private RedissonClient redisClient;
 
-    private final com.avaya.digital.smhc.domain.repository.MessageStateStoreRepository stateStoreRepository;
+    private final MessageStateStoreRepository stateStoreRepository;
 
     @Value("${redis.expireTimeInSeconds}")
     long expireTime;
 
 
-    public InboundMessageRepository(com.avaya.digital.smhc.domain.repository.MessageStateStoreRepository stateStoreRepository) {
+    public InboundMessageRepository(MessageStateStoreRepository stateStoreRepository) {
         this.stateStoreRepository = stateStoreRepository;
     }
 
