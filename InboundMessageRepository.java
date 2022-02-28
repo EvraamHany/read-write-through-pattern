@@ -40,7 +40,7 @@ public class InboundMessageRepository implements CacheRepository<message, String
             return null;
         }
 
-        String messageKey = String.format("%s_%s", message.getStateStoreId().getDigitalAccountId(), message.getStateStoreId().getMessageId());
+        String messageKey = String.format("%s_%s", message.getId());
         RMap<String, message> set = redisClient.getMapCache(messageKey, getWriteCachePatternProperties());
         set.put(messageKey, message);
         set.expire(expireTime, TimeUnit.SECONDS);
@@ -63,7 +63,7 @@ public class InboundMessageRepository implements CacheRepository<message, String
         if (redisClient == null) {
             return ;
         }
-        String messageKey = String.format("%s_%s", message.getStateStoreId().getDigitalAccountId(), message.getStateStoreId().getMessageId());
+        String messageKey = String.format("%s_%s", message.getId());
         RMap<String, message> map = redisClient.getMapCache(messageKey, getWriteCachePatternProperties());
         map.remove(messageKey);
     }
@@ -106,16 +106,16 @@ public class InboundMessageRepository implements CacheRepository<message, String
 
     @Override
     public DatabaseReadWrite<message, String> deleteFromDatabase() {
-        return (asyncGWStateStoreMessage, key) -> {
+        return (stateStoreMessage, key) -> {
             List<String> split = List.of(key.split("_", 2));
             stateStoreRepository.deleteById(message.builder().digitalAccountId(split.get(0)).messageId(split.get(1)).build());
-            return asyncGWStateStoreMessage;
+            return stateStoreMessage;
         };
     }
 
     @Override
     public DatabaseReadWrite<message, String> loadFromDatabase() {
-        return (asyncGWStateStoreMessage, key) -> {
+        return (stateStoreMessage, key) -> {
             List<String> split = List.of(key.split("_", 2));
             return stateStoreRepository.findById(StateStoreMessageId.builder().digitalAccountId(split.get(0)).messageId(split.get(1)).build()).orElse(null);
         };
